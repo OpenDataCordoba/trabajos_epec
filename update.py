@@ -28,7 +28,6 @@ data = requests.post(
     json={"trabajoId": None},
 ).json()["trabajos"]
 
-import ipdb;ipdb.set_trace()
 rows += [strip(r) for r in data if r["id"] not in ids]
 
 with target.open("w") as file:
