@@ -10,7 +10,7 @@ import requests
 
 def strip(row):
     """strip the values of a dict"""
-    return {k: v.strip() for k,v in row.items()}
+    return {k: v.strip() if v else v for k,v in row.items()}
 
 
 target = Path("trabajos_epec.csv")
@@ -30,6 +30,7 @@ data = requests.post(
 
 rows += [strip(r) for r in data if r["id"] not in ids]
 
+
 with target.open("w") as file:
     writer = csv.DictWriter(
         file,
@@ -37,3 +38,15 @@ with target.open("w") as file:
     )
     writer.writeheader()
     writer.writerows(rows)
+
+
+def expandir_zona(zona, localidad):
+    zona = zona.rstrip(".")
+    if zona.startswith(("barrio", "Barrio")):
+        # quita el prefijo "barrio"
+        zona = zona.partition(" ")[-1]
+        # separa la lista 
+        barrios = re.split(r",| y )", zona)
+        return [
+            {"tipo": "barrio", "nombre": barrio.strip(), "localidad": localidad} for barrio in barrios
+        ]
